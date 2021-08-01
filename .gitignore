@@ -340,8 +340,7 @@ ASALocalRun/
 healthchecksdb
 
 # Database connection
-Square/Square/appsettings.json
-Square/Square/appsettings.*.json
-/Square/Square/appsettings.json
-Square/Square/Migrations/ApplicationDbContextModelSnapshot.cs
+Square/Migrations/ApplicationDbContextModelSnapshot.cs
 appsettings.json
+Square/appsettings.json
+Square/appsettings.*.json
