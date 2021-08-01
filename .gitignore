@@ -338,3 +338,9 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Database connection
+Square/Migrations/ApplicationDbContextModelSnapshot.cs
+appsettings.json
+Square/appsettings.json
+Square/appsettings.*.json
