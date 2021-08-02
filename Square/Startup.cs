@@ -12,6 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Square.Database;
+using Square.Repositories.List;
+using Square.Repositories.Point;
+using Square.Services.List;
+using Square.Services.Point;
 
 namespace Square
 {
@@ -27,12 +31,17 @@ namespace Square
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                //Ignore reference looping
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
+
+            services.AddSwaggerGen();
 
             services.AddDbContext<ApplicationDatabaseContext>(options =>
             {
                 string connectionString = Configuration.GetConnectionString("SquareDatabase");
-
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
                 (settings) =>
                 {
@@ -41,6 +50,11 @@ namespace Square
             }
             );
 
+            services.AddScoped<IPointRepository, PointRepository>();
+            services.AddScoped<IListRepository, ListRepository>();
+
+            services.AddScoped<IPointService, PointService>();
+            services.AddScoped<IListService, ListService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,11 +70,14 @@ namespace Square
             app.UseRouting();
 
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", ""); });
         }
     }
 }
