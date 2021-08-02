@@ -11,4 +11,5 @@ namespace Square.Repositories.Point
         Task<Response<Models.Point>> GetByIdAsync(Guid? id);
         Task<Response<Models.Point>> AddAsync(Models.Point point);
         Task<Response<Models.Point>> DeleteAsync(Guid? id);
+    }
 }
