@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Square.DTO;
+using Square.Extensions;
 using Square.Models;
 using Square.Services.List;
 using System;
@@ -14,8 +17,13 @@ namespace Square.Controllers
     public class ListsController : ControllerBase
     {
         private readonly IListService _service;
+        private readonly IMapper _mapper;
 
-        public ListsController(IListService service) { _service = service; }
+        public ListsController(IListService service, IMapper mapper)
+        { 
+            _service = service;
+            _mapper = mapper;
+        }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -23,11 +31,12 @@ namespace Square.Controllers
         public async Task<IActionResult> Get(Guid? id)
         {
             var result = await _service.GetAsync(id);
+            var mappedResult = _mapper.MapDTO<DTO.ListDTO, List>(result);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
 
         [HttpGet]
@@ -36,24 +45,28 @@ namespace Square.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _service.GetAsync();
+            var mappedResult = _mapper.MapDTO<IEnumerable<ListDTO>, IEnumerable<List>>(result);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Post([FromBody]List list)
+        public async Task<IActionResult> Post([FromBody]DTO.ListDTO list)
         {
-            var result = await _service.AddAsync(list);
+            var unMappedList = _mapper.Map<ListDTO, List>(list);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            var result = await _service.AddAsync(unMappedList);
+            var mappedResult = _mapper.MapDTO<ListDTO, List>(result);
+
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
 
         [HttpDelete("{id}")]
@@ -62,11 +75,12 @@ namespace Square.Controllers
         public async Task<IActionResult> Delete(Guid? id)
         {
             var result = await _service.DeleteAsync(id);
+            var mappedResult = _mapper.MapDTO<ListDTO, List>(result);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
     }
 }

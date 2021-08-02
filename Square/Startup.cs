@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -49,6 +50,8 @@ namespace Square
                 });
             }
             );
+
+            services.AddAutoMapper(typeof(MappingProfile));
 
             services.AddScoped<IPointRepository, PointRepository>();
             services.AddScoped<IListRepository, ListRepository>();

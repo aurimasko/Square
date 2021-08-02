@@ -7,10 +7,11 @@ namespace Square.Communications
 {
     public class Response<T>
     {
-        public T Content { get; }
-        public bool IsSuccess { get; }
-        public string Message { get; }
+        public T Content { get; set; }
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; }
 
+        public Response() { }
         public Response(bool _IsSuccess)
         {
             IsSuccess = _IsSuccess;
