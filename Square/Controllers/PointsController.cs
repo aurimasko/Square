@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Square.DTO;
+using Square.Extensions;
 using Square.Models;
 using Square.Services.Point;
 using System;
@@ -13,34 +16,43 @@ namespace Square.Controllers
     [Route("[controller]")]
     public class PointsController : ControllerBase
     {
-        private readonly IPointService service;
+        private readonly IPointService _service;
+        private readonly IMapper _mapper;
 
-        public PointsController(IPointService _service) { service = _service; }
+        public PointsController(IPointService service, IMapper mapper) 
+        { 
+            _service = service;
+            _mapper = mapper;
+        }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Get(Guid? id)
         {
-            var result = await service.GetAsync(id);
+            var result = await _service.GetAsync(id);
+            var mappedResult = _mapper.MapDTO<PointDTO, Point>(result);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
    
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Post([FromBody]Point point)
+        public async Task<IActionResult> Post([FromBody]DTO.PointDTO point)
         {
-            var result = await service.AddAsync(point);
+            var unMappedPoint = _mapper.Map<PointDTO, Point>(point);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            var result = await _service.AddAsync(unMappedPoint);
+            var mappedResult = _mapper.MapDTO<PointDTO, Point>(result);
+
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
 
         [HttpDelete]
@@ -48,12 +60,13 @@ namespace Square.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(Guid? id)
         {
-            var result = await service.DeleteAsync(id);
+            var result = await _service.DeleteAsync(id);
+            var mappedResult = _mapper.MapDTO<PointDTO, Point>(result);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
     }
 }
