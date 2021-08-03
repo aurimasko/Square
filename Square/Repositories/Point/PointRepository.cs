@@ -24,9 +24,6 @@ namespace Square.Repositories.Point
         {
             var entity = await DbContext.Points.AddAsync(point);
 
-            for (int i = 0; i < 10000; i++)
-                await DbContext.Points.AddAsync(new Models.Point() { CoordX = 1, CoordY = 2, ListId = point.ListId });
-
             if (entity.Entity == null)
                 return new Response<Models.Point>("New point was not added");
 
