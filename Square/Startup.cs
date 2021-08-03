@@ -32,6 +32,17 @@ namespace Square
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllRequests", builder =>
+                {
+                    builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
             services.AddControllers().AddNewtonsoftJson(options =>
             {
                 //Ignore reference looping
@@ -67,6 +78,8 @@ namespace Square
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors("AllowAllRequests");
 
             app.UseHttpsRedirection();
 

@@ -23,11 +23,27 @@ namespace Square.Services.List
             return await _repository.GetAsync();
         }
 
+
         public async Task<Response<Models.List>> AddAsync(Models.List list)
         {
             foreach(Models.Point point in list.Points)
                 point.ListId = list.Id;
-            
+
+            var existingList = await _repository.GetByNameAsync(list.Name);
+
+            if(existingList.IsSuccess)
+            {
+                if (existingList.Content != null)
+                {
+                    var deleteExistingList = await DeleteAsync(existingList.Content.Id);
+
+                    if (!deleteExistingList.IsSuccess)
+                        return new Response<Models.List>(deleteExistingList.Message);
+                }
+            }
+            else
+                return new Response<Models.List>(existingList.Message);
+
             return await _repository.AddAsync(list);
         }
 
