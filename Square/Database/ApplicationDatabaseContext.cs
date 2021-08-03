@@ -16,7 +16,10 @@ namespace Square.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<List>().HasMany(p => p.Points).WithOne(l => l.List).HasForeignKey(l => l.ListId).OnDelete(DeleteBehavior.Cascade);
+ 
             base.OnModelCreating(modelBuilder);
+
         }
     }
 }

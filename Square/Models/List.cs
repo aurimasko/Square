@@ -15,6 +15,6 @@ namespace Square.Models
         public string Name { get; set; }
 
         [InverseProperty(nameof(Point.List))]
-        public IEnumerable<Point> Points { get; set; }
+        public virtual IEnumerable<Point> Points { get; set; }
     }
 }
