@@ -22,5 +22,10 @@ namespace Square.Models
 
         [ForeignKey(nameof(ListId))]
         public List List { get; set; }
+
+        public double GetDistanceBetweenPoints(Point pointB)
+        {
+            return Math.Sqrt(Math.Pow(pointB.CoordX - this.CoordX, 2) + Math.Pow(pointB.CoordY - this.CoordY, 2));
+        }
     }
 }
