@@ -38,72 +38,52 @@ namespace Square.Controllers
         public IActionResult Post([FromBody]Models.Point[] points)
         {
             List<Models.Square> squares = new List<Models.Square>();
-
-            Dictionary<string, int> dictionary = new Dictionary<string, int>();
-            int count = 0;
+            Dictionary<string, int> pointsDictionary = new Dictionary<string, int>();
+            int squaresCount = 0;
 
             for (int i = 0; i < points.Length; i++)
-            {
-                dictionary[points[i].CoordX +","+ points[i].CoordY] = i;
-            }
-
+                pointsDictionary[points[i].CoordX +","+ points[i].CoordY] = i;
+            
             for (int i = 0; i < points.Length - 1; i++)
             {
                 for (int j = i + 1; j < points.Length; j++)
                 {
-                    var distance = Math.Sqrt(Math.Pow(points[j].CoordX - points[i].CoordX, 2) + Math.Pow(points[j].CoordY - points[i].CoordY, 2));
+                    double distance = points[i].GetDistanceBetweenPoints(points[j]);
 
-                    var point1X = points[i].CoordX + distance;
-                    var point1Y = points[i].CoordY + distance;
-
-                    var point1OppX = points[i].CoordX - distance;
-                    var point1OppY = points[i].CoordY - distance;
-
-
-                     var point2X = points[j].CoordX - distance;
-                     var point2Y = points[j].CoordY + distance;
-
-                    var point2OppX = points[j].CoordX + distance;
-                     var point2OppY = points[j].CoordY - distance;
-
-
-                    string point1 = point1X.ToString() + "," + point1Y.ToString();//++
+                    string point1 = (points[i].CoordX + distance).ToString() + "," + (points[i].CoordY + distance).ToString();//++
                     string point1Opp2 = (points[i].CoordX - distance).ToString() + "," + (points[i].CoordY + distance).ToString(); // -+
 
                     string point2Opp3 = (points[j].CoordX + distance).ToString() + "," + (points[j].CoordY + distance).ToString();//++
-                    string point2 = point2X.ToString() + "," + point2Y.ToString(); //-+
+                    string point2 = (points[j].CoordX - distance).ToString() + "," + (points[j].CoordY + distance).ToString(); //-+
 
+                  //   string[] PointA = { (points[i].CoordX + distance).ToString() + "," + (points[i].CoordY + distance).ToString(), (points[i].CoordX - distance).ToString() + "," + (points[i].CoordY + distance).ToString() };
+                   // string[] PointB = { (points[j].CoordX + distance).ToString() + "," + (points[j].CoordY + distance).ToString() , (points[j].CoordX - distance).ToString() + "," + (points[j].CoordY + distance).ToString() };
 
-                        int value1, value2;
-
-
-                    if((dictionary.TryGetValue(point1, out value1) && dictionary.TryGetValue(point2, out value2)) || (dictionary.TryGetValue(point1Opp2, out value1) && dictionary.TryGetValue(point2Opp3, out value2))  ) //|| (dictionary.ContainsKey(point1Opp) && dictionary.ContainsKey(point2Opp)) )/*||
+                    if((pointsDictionary.TryGetValue(point1, out int value1) && pointsDictionary.TryGetValue(point2, out int value2)) || (pointsDictionary.TryGetValue(point1Opp2, out value1) && pointsDictionary.TryGetValue(point2Opp3, out value2))  ) //|| (dictionary.ContainsKey(point1Opp) && dictionary.ContainsKey(point2Opp)) )/*||
                     {
-                        var distance2 = Math.Sqrt(Math.Pow(points[value1].CoordX - points[value2].CoordX, 2) + Math.Pow(points[value1].CoordY - points[value2].CoordY, 2));
-
-                        if (distance != distance2)
+                        if (distance != points[value2].GetDistanceBetweenPoints(points[value1]))
                             continue;
 
                         Models.Square square = new Models.Square
+                        {
+                            Points = new List<Models.Point>
                             {
-                                Points = new List<Models.Point>
-                            {
-                                    points[i],
-                                    points[j],
+                                points[i],
+                                points[j],
                                 points[value1],
                                 points[value2]
                             }
-                            };
+                        };
 
-                            if (!squares.Any(s => s == square))
-                            {
-                                squares.Add(square);
-                                count++;
-                            }
+                        if (!squares.Any(s => s == square))
+                        {
+                            squares.Add(square);
+                            squaresCount++;
+                        }
                     }
                 }
             }
-            return Ok(squares);
+            return Ok(new { squaresCount, squares });
         }
     }
 }
