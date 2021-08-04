@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Square.Database;
 using Square.Repositories.List;
 using Square.Repositories.Point;
+using Square.Services.File;
 using Square.Services.List;
 using Square.Services.Point;
 
@@ -69,6 +70,8 @@ namespace Square
 
             services.AddScoped<IPointService, PointService>();
             services.AddScoped<IListService, ListService>();
+
+            services.AddScoped<IFileService, FileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
