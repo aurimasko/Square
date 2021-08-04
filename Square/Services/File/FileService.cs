@@ -29,7 +29,7 @@ namespace Square.Services.File
                     line = await reader.ReadLineAsync();
                     var coords = line.Split(' ');
 
-                    if (coords.Length > 2 || !int.TryParse(coords[0], out int coordX) || !int.TryParse(coords[1], out int coordY) || resultList.Any(p => p.CoordX == coordX && p.CoordY == coordY))
+                    if (coords.Length > 2 || !int.TryParse(coords[0], out int coordX) || !int.TryParse(coords[1], out int coordY) || resultList.Any(p => p.CoordX == coordX && p.CoordY == coordY) || coordX < -5000 || coordX > 5000 || coordY < -5000 || coordY > 5000)
                     {
                         _skippedLines = true;
                         continue;
