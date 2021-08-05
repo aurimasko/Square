@@ -18,6 +18,7 @@ using Square.Repositories.Point;
 using Square.Services.File;
 using Square.Services.List;
 using Square.Services.Point;
+using Square.Services.Square;
 
 namespace Square
 {
@@ -59,7 +60,8 @@ namespace Square
                 (settings) =>
                 {
                     settings.EnableRetryOnFailure();
-                });
+                }).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                
             }
             );
 
@@ -72,6 +74,7 @@ namespace Square
             services.AddScoped<IListService, ListService>();
 
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<ISquareService, SquareService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

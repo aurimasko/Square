@@ -16,17 +16,17 @@ namespace Square.Repositories.List
 
         public async Task<Response<Models.List>> GetAsync(Guid? id)
         {
-            return new Response<Models.List>(await _context.Lists.Include(l => l.Points).FirstOrDefaultAsync(l => l.Id.Equals(id)));
+            return new Response<Models.List>(await _context.Lists.AsNoTracking().Include(l => l.Points).FirstOrDefaultAsync(l => l.Id.Equals(id)));
         }
 
         public async Task<Response<Models.List>> GetByNameAsync(string name)
         {
-            return new Response<Models.List>(await _context.Lists.Include(l => l.Points).FirstOrDefaultAsync(l => l.Name.Equals(name)));
+            return new Response<Models.List>(await _context.Lists.AsNoTracking().Include(l => l.Points).FirstOrDefaultAsync(l => l.Name.Equals(name)));
         }
 
         public async Task<Response<IEnumerable<Models.List>>> GetAsync()
         {
-            return new Response<IEnumerable<Models.List>>(await _context.Lists.ToListAsync());
+            return new Response<IEnumerable<Models.List>>(await _context.Lists.AsNoTracking().ToListAsync());
         }
 
         public async Task<Response<Models.List>> AddAsync(Models.List list)
