@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Square.Communications
 {
-    public class Response<T>
+    public class Response
     {
-        public T Content { get; set; }
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
 
@@ -16,12 +16,29 @@ namespace Square.Communications
         {
             IsSuccess = _IsSuccess;
         }
-        public Response(T _content) { Content = _content; IsSuccess = true; }
         public Response(string _Message) { IsSuccess = false; Message = _Message; }
         public Response(bool _IsSuccess, string _Message)
         {
             IsSuccess = _IsSuccess;
             Message = _Message;
         }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+    }
+
+    public class Response<T> : Response
+    {
+        public T Content { get; set; }
+
+        public Response() { }
+
+        public Response(bool _IsSuccess) : base(_IsSuccess) { }
+   
+        public Response(T _content) : base(true) { Content = _content; }
+        public Response(string _Message) : base(_Message) {  }
+        public Response(bool _IsSuccess, string _Message) : base(_IsSuccess, _Message) { }
     }
 }
