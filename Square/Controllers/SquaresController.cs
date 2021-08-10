@@ -35,24 +35,11 @@ namespace Square.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Post([FromBody]DTO.PointDTO[] points)
+        public IActionResult Post([FromBody]IEnumerable<DTO.PointDTO> points)
         {
-            var unMappedPoints = _mapper.Map<DTO.PointDTO[], Models.Point[]>(points);
+            var unMappedPoints = _mapper.Map<IEnumerable<DTO.PointDTO>, IEnumerable<Models.SquarePoint>>(points);
             var result = _service.FindSquares(unMappedPoints);
-          //  var mappedResult = _mapper.MapDTO<Models.Point[], DTO.SQ]>(result);
-
-            if (result.IsSuccess)
-                return Ok(result);
-            else
-                return BadRequest(result);
-        }
-
-        [HttpPost("{listId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Post(Guid? listId)
-        {
-            var result = await _service.FindSquares(listId);
+            //var mappedResult = _mapper.MapDTO<IEnumeraModels.Point[], DTO.SQ]>(result);
 
             if (result.IsSuccess)
                 return Ok(result);

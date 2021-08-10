@@ -1,4 +1,6 @@
 ﻿using Square.Communications;
+using Square.DTO;
+using Square.Extensions;
 using Square.Models;
 using Square.Services.List;
 using System;
@@ -17,43 +19,46 @@ namespace Square.Services.Square
             _listService = listService;
         }
 
-        public Response<SquareList> FindSquares(Models.Point[] points)
+        public Response<SquareList> FindSquares(IEnumerable<Models.SquarePoint> points)
         {
-            SquareList squares = new SquareList { Squares = new List<Models.Square>(), SquaresCount = 0 };
-            Dictionary<string, int> pointsDictionary = new Dictionary<string, int>();
+            //var pointsArray = points.OrderByDescending(p => p.CoordX).ThenBy(p => p.CoordY).ToArray();
+            var pointsArray = points.ToArray();
 
-            for (int i = 0; i < points.Length; i++)
-                pointsDictionary[points[i].CoordX + "," + points[i].CoordY] = i;
+            SquareList squares = new SquareList();
 
-            for (int i = 0; i < points.Length - 1; i++)
+            HashSet<SquarePoint> pointsHash = new HashSet<SquarePoint>();
+
+            for (int i = 0; i < pointsArray.Length; i++)
+                pointsHash.Add(new SquarePoint { CoordX = pointsArray[i].CoordX, CoordY = pointsArray[i].CoordY });
+
+            for (int i = 0; i < pointsArray.Length - 1; i++)
             {
-                for (int j = i + 1; j < points.Length; j++)
+                for (int j = i + 1; j < pointsArray.Length; j++)
                 {
-                    double distance = points[i].GetDistanceBetweenPoints(points[j]);
+                    SquarePoint pointA = pointsArray[i];
+                    SquarePoint pointB = pointsArray[j];
 
-                    string point1 = (points[i].CoordX + distance).ToString() + "," + (points[i].CoordY + distance).ToString();//++
-                    string point1Opp2 = (points[i].CoordX - distance).ToString() + "," + (points[i].CoordY + distance).ToString(); // -+
+                    double distance = pointsArray[i].GetDistanceBetweenPoints(pointsArray[j]);
 
-                    string point2Opp3 = (points[j].CoordX + distance).ToString() + "," + (points[j].CoordY + distance).ToString();//++
-                    string point2 = (points[j].CoordX - distance).ToString() + "," + (points[j].CoordY + distance).ToString(); //-+
+                    if (distance % 1 != 0) // if distance is not integer, then it is not possible to get integer coordinate
+                        continue;
 
-                    //   string[] PointA = { (points[i].CoordX + distance).ToString() + "," + (points[i].CoordY + distance).ToString(), (points[i].CoordX - distance).ToString() + "," + (points[i].CoordY + distance).ToString() };
-                    // string[] PointB = { (points[j].CoordX + distance).ToString() + "," + (points[j].CoordY + distance).ToString() , (points[j].CoordX - distance).ToString() + "," + (points[j].CoordY + distance).ToString() };
+                    int lineLength = Convert.ToInt32(distance);
 
-                    if ((pointsDictionary.TryGetValue(point1, out int value1) && pointsDictionary.TryGetValue(point2, out int value2)) || (pointsDictionary.TryGetValue(point1Opp2, out value1) && pointsDictionary.TryGetValue(point2Opp3, out value2))) //|| (dictionary.ContainsKey(point1Opp) && dictionary.ContainsKey(point2Opp)) )/*||
+                    SquarePoint pointC = new SquarePoint { CoordX = pointB.CoordX, CoordY = pointB.CoordY + lineLength };
+                    SquarePoint pointD = new SquarePoint { CoordX = pointA.CoordX, CoordY = pointA.CoordY + lineLength };
+
+                    var diagonalDistance = distance * Math.Sqrt(2);
+
+                    if (pointsHash.Contains(pointC) && pointsHash.Contains(pointD) && diagonalDistance.AboutEqual(pointC.GetDistanceBetweenPoints(pointA)) && diagonalDistance.AboutEqual(pointD.GetDistanceBetweenPoints(pointB)))
                     {
-                        if (distance != points[value2].GetDistanceBetweenPoints(points[value1]))
-                            continue;
 
-                        Models.Square square = new Models.Square
+                        List<SquarePoint> square = new List<SquarePoint>
                         {
-                            Points = new List<Models.Point>
-                            {
-                                points[i],
-                                points[j],
-                                points[value1],
-                                points[value2]
-                            }
+                            pointA,
+                            pointB,
+                            pointC,
+                            pointD
                         };
 
                         if (!squares.Squares.Any(s => s == square))
@@ -65,22 +70,6 @@ namespace Square.Services.Square
                 }
             }
             return new Response<SquareList>(squares);
-        }
-
-        public async Task<Response<SquareList>> FindSquares(Guid? listID)
-        {
-            var list = await _listService.GetAsync(listID);
-
-            if (!list.IsSuccess)
-                return new Response<SquareList>(list.Message);
-
-            var squares = FindSquares(list.Content.Points.ToArray());
-
-            if (!squares.IsSuccess)
-                return new Response<SquareList>(squares.Message);
-
-            return squares;
-
         }
     }
 }

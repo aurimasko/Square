@@ -12,12 +12,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Square.Communications;
 using Square.Database;
 using Square.Repositories.List;
-using Square.Repositories.Point;
 using Square.Services.File;
 using Square.Services.List;
-using Square.Services.Point;
 using Square.Services.Square;
 
 namespace Square
@@ -51,8 +50,35 @@ namespace Square
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
 
-            services.AddSwaggerGen();
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                //Return custom model state validation results
+                options.InvalidModelStateResponseFactory = (context) =>
+                {
+                    var modelState = context.ModelState;
 
+                    string errorMessage = "";
+
+                    foreach (var keyModelStatePair in modelState)
+                    {
+                        var key = keyModelStatePair.Key;
+                        var errors = keyModelStatePair.Value.Errors;
+                        if (errors != null && errors.Count > 0)
+                        {
+                            foreach (var error in errors)
+                            {
+                                if (!String.IsNullOrEmpty(error.ErrorMessage))
+                                    errorMessage = errorMessage + error.ErrorMessage + ' ';
+                            }
+                        }
+                    }
+
+                    var response = new Response(errorMessage);
+                    return new BadRequestObjectResult(response);
+                };
+            });
+
+            services.AddSwaggerGen();
             services.AddDbContext<ApplicationDatabaseContext>(options =>
             {
                 string connectionString = Configuration.GetConnectionString("SquareDatabase");
@@ -67,10 +93,8 @@ namespace Square
 
             services.AddAutoMapper(typeof(MappingProfile));
 
-            services.AddScoped<IPointRepository, PointRepository>();
             services.AddScoped<IListRepository, ListRepository>();
 
-            services.AddScoped<IPointService, PointService>();
             services.AddScoped<IListService, ListService>();
 
             services.AddScoped<IFileService, FileService>();

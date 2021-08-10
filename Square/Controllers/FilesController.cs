@@ -20,10 +20,12 @@ namespace Square.Controllers
     public class FilesController : ControllerBase
     {
         private readonly IFileService _service;
+        private readonly IMapper _mapper;
 
-        public FilesController(IFileService service)
+        public FilesController(IFileService service, IMapper mapper)
         {
-            _service = service;   
+            _service = service;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -32,11 +34,12 @@ namespace Square.Controllers
         public async Task<IActionResult> Post([FromForm]Models.File file)
         {
             var result = await _service.ReadFileAsync(file.InputFile);
+            var mappedResult = _mapper.MapDTO<FileResultDTO, Models.FileResult>(result);
 
-            if (result.IsSuccess)
-                return Ok(result);
+            if (mappedResult.IsSuccess)
+                return Ok(mappedResult);
             else
-                return BadRequest(result);
+                return BadRequest(mappedResult);
         }
     }
 }

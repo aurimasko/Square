@@ -8,7 +8,12 @@ namespace Square.Models
 {
     public class SquareList
     {
-        public IList<Square> Squares { get; set; }
+        public SquareList()
+        {
+            Squares = new List<IEnumerable<SquarePoint>>();
+            SquaresCount = 0;
+        }
+        public IList<IEnumerable<SquarePoint>> Squares { get; set; }
         public int SquaresCount { get; set; }
     }
 }

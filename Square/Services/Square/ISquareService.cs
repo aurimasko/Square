@@ -8,7 +8,6 @@ namespace Square.Services.Square
 {
     public interface ISquareService
     {
-        Response<Models.SquareList> FindSquares(Models.Point[] points);
-        Task<Response<Models.SquareList>> FindSquares(Guid? listID);
+        Response<Models.SquareList> FindSquares(IEnumerable<Models.SquarePoint> points2);
     }
 }

@@ -15,7 +15,7 @@ namespace Square.Services.File
         public async Task<Response<Models.FileResult>> ReadFileAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return new Response<Models.FileResult>("File is not attached.");
+                return new Response<Models.FileResult>("File is not attached or file is empty.");
 
             List<Models.Point> resultList = new List<Models.Point>();
             Boolean _skippedLines = false;
